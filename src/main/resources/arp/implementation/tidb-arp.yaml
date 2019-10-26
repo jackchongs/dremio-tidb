@@ -22,14 +22,14 @@ metadata:
 
 syntax:
   # Manually Configured Syntax Section.
-  identifier_quote: "`" #https://docs.snowflake.net/manuals/sql-reference/identifiers-syntax.html#double-quoted-identifiers
-  identifier_length_limit: 50 #https://docs.snowflake.net/manuals/sql-reference/identifiers.html#object-identifiers
+  identifier_quote: "`" # https://dev.mysql.com/doc/refman/5.7/en/identifiers.html
+  identifier_length_limit: 64  #https://dev.mysql.com/doc/refman/5.7/en/identifier-length.html
   allows_boolean_literal: false
   map_boolean_literal_to_bit: false
   supports_catalogs: true
   supports_schemas: false
 
-# https://docs.snowflake.net/manuals/sql-reference/intro-summary-data-types.html
+# https://dev.mysql.com/doc/refman/5.7/en/data-types.html
 data_types:
   mappings:
     - source:
@@ -66,6 +66,10 @@ data_types:
         name: "timestamp"
     - source:
         name: "DECIMAL UNSIGNED"
+      dremio:
+        name: "decimal"
+    - source:
+        name: "DECIMAL"
       dremio:
         name: "decimal"
     - source:
@@ -137,8 +141,11 @@ data_types:
         name: "varchar"
     - source:
         name: "NUMERIC"
+        max_precision: 38
+        max_scale: 37
+      required_cast_args: "precision_scale"
       dremio:
-        name: "double"
+        name: "DECIMAL"
     - source:
         name: "REAL"
       dremio:

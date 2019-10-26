@@ -454,21 +454,20 @@ expressions:
         - args:
             - "integer"
           return: "integer"
-    - names: #https://docs.snowflake.net/manuals/sql-reference/functions/position.html
-        - "position"
+    - names:
         - "locate"
       signatures:
         - args:
             - "varchar"
             - "varchar"
           return: "integer"
-          rewrite: "POSITION({0}, {1})"
+          rewrite: "LOCATE({0}, {1})"
         - args:
             - "varchar"
             - "varchar"
             - "integer"
           return: "integer"
-          rewrite: "POSITION({0}, {1}, {2})"
+          rewrite: "LOCATE({0}, {1}, {2})"
     - names:
         - "pi"
       signatures:
@@ -481,47 +480,27 @@ expressions:
             - "double"
             - "integer"
           return: "double"
-          rewrite: "TRUNC({0}, {1})"
+          rewrite: "TRUNCATE({0}, {1})"
         - args:
             - "decimal"
             - "integer"
           return: "decimal"
-          rewrite: "TRUNC({0}, {1})"
+          rewrite: "TRUNCATE({0}, {1})"
         - args:
             - "float"
             - "integer"
           return: "float"
-          rewrite: "TRUNC({0}, {1})"
+          rewrite: "TRUNCATE({0}, {1})"
         - args:
             - "bigint"
             - "integer"
           return: "bigint"
-          rewrite: "TRUNC({0}, {1})"
+          rewrite: "TRUNCATE({0}, {1})"
         - args:
             - "integer"
             - "integer"
           return: "integer"
-          rewrite: "TRUNC({0}, {1})"
-        - args:
-            - "double"
-          return: "double"
-          rewrite: "TRUNC({0})"
-        - args:
-            - "decimal"
-          return: "decimal"
-          rewrite: "TRUNC({0})"
-        - args:
-            - "float"
-          return: "float"
-          rewrite: "TRUNC({0})"
-        - args:
-            - "integer"
-          return: "integer"
-          rewrite: "TRUNC({0})"
-        - args:
-            - "bigint"
-          return: "bigint"
-          rewrite: "TRUNC({0})"
+          rewrite: "TRUNCATE({0}, {1})"
     - names:
         - "reverse"
       signatures:
@@ -529,7 +508,7 @@ expressions:
             - "varchar"
           return: "varchar"
     - names:
-        - "rpad" #https://docs.snowflake.net/manuals/sql-reference/functions/rpad.html
+        - "rpad"
       signatures:
         - args:
             - "varchar"
@@ -542,7 +521,7 @@ expressions:
             - "varchar"
           return: "varchar"
     - names:
-        - "lpad" #https://docs.snowflake.net/manuals/sql-reference/functions/lpad.html
+        - "lpad"
       signatures:
         - args:
             - "varchar"
@@ -582,8 +561,7 @@ expressions:
             - "integer"
           return: "varchar"
           rewrite: "substring({0},{1})"
-    # Snowlake supports both EXTRACT (type from field) and YEAR/MONTH/DAY/SECOND etc..
-    # https://docs.snowflake.net/manuals/sql-reference/functions/date_part.html
+    # supports both EXTRACT (type from field) and YEAR/MONTH/DAY/SECOND etc..
     - names:
         - extract_year
       signatures:
@@ -741,7 +719,7 @@ expressions:
 
     # Math functions
     - names:
-        - "log" #https://docs.snowflake.net/manuals/sql-reference/functions/log.html
+        - "log"
       signatures:
         - args:
             - "double"
@@ -756,7 +734,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "acos" #https://docs.snowflake.net/manuals/sql-reference/functions/acos.html
+        - "acos"
       signatures:
         - args:
             - "double"
@@ -765,7 +743,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "asin" #https://docs.snowflake.net/manuals/sql-reference/functions/asin.html
+        - "asin"
       signatures:
         - args:
             - "double"
@@ -774,7 +752,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "round" #https://docs.snowflake.net/manuals/sql-reference/functions/round.html
+        - "round"
       signatures:
         - args:
             - "integer"
@@ -834,7 +812,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "abs" #https://docs.snowflake.net/manuals/sql-reference/functions/abs.html
+        - "abs"
       signatures:
         - args:
             - "integer"
@@ -852,7 +830,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "atan" #https://docs.snowflake.net/manuals/sql-reference/functions/atan.html
+        - "atan"
       signatures:
         - args:
             - "bigint"
@@ -870,7 +848,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "atan2" #https://docs.snowflake.net/manuals/sql-reference/functions/atan2.html
+        - "atan2"
       signatures:
         - args:
             - "bigint"
@@ -949,7 +927,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "cbrt" #https://docs.snowflake.net/manuals/sql-reference/functions/cbrt.html
+        - "ceil"
       signatures:
         - args:
             - "bigint"
@@ -967,7 +945,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "ceil" #https://docs.snowflake.net/manuals/sql-reference/functions/ceil.html
+        - "cos"
       signatures:
         - args:
             - "bigint"
@@ -985,8 +963,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "cos" #https://docs.snowflake.net/manuals/sql-reference/functions/cos.html
-        - "cosh"
+        - "cot"
       signatures:
         - args:
             - "bigint"
@@ -1004,7 +981,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "cot" #https://docs.snowflake.net/manuals/sql-reference/functions/cot.html
+        - "degrees"
       signatures:
         - args:
             - "bigint"
@@ -1022,7 +999,19 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "degrees" #https://docs.snowflake.net/manuals/sql-reference/functions/degrees.html
+        - "exp"
+      signatures:
+        - args:
+            - "float"
+          return: "double"
+        - args:
+            - "integer"
+          return: "double"
+        - args:
+            - "decimal"
+          return: "decimal"
+    - names:
+        - "ln"
       signatures:
         - args:
             - "bigint"
@@ -1040,37 +1029,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "exp" #https://docs.snowflake.net/manuals/sql-reference/functions/exp.html
-      signatures:
-        - args:
-            - "float"
-          return: "double"
-        - args:
-            - "integer"
-          return: "double"
-        - args:
-            - "decimal"
-          return: "decimal"
-    - names:
-        - "ln" #https://docs.snowflake.net/manuals/sql-reference/functions/ln.html
-      signatures:
-        - args:
-            - "bigint"
-          return: "double"
-        - args:
-            - "double"
-          return: "double"
-        - args:
-            - "float"
-          return: "double"
-        - args:
-            - "integer"
-          return: "double"
-        - args:
-            - "decimal"
-          return: "decimal"
-    - names:
-        - "mod" #https://docs.snowflake.net/manuals/sql-reference/functions/mod.html
+        - "mod"
       signatures:
         - args:
             - "double"
@@ -1121,7 +1080,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "power" #https://docs.snowflake.net/manuals/sql-reference/functions/pow.html
+        - "power"
       signatures:
         - args:
             - "bigint"
@@ -1180,7 +1139,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "radians" #https://docs.snowflake.net/manuals/sql-reference/functions/radians.html
+        - "radians"
       signatures:
         - args:
             - "bigint"
@@ -1198,7 +1157,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "sin" #https://docs.snowflake.net/manuals/sql-reference/functions/sin.html
+        - "sin"
       signatures:
         - args:
             - "bigint"
@@ -1216,7 +1175,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "sqrt" #https://docs.snowflake.net/manuals/sql-reference/functions/sqrt.html
+        - "sqrt"
       signatures:
         - args:
             - "bigint"
@@ -1234,8 +1193,7 @@ expressions:
             - "decimal"
           return: "decimal"
     - names:
-        - "tan" #https://docs.snowflake.net/manuals/sql-reference/functions/tan.html
-        - "tanh"
+        - "tan"
       signatures:
         - args:
             - "bigint"

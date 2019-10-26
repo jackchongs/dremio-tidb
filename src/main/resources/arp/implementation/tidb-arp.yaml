@@ -67,11 +67,11 @@ data_types:
     - source:
         name: "DECIMAL UNSIGNED"
       dremio:
-        name: "decimal"
+        name: "double"
     - source:
         name: "DECIMAL"
       dremio:
-        name: "decimal"
+        name: "double"
     - source:
         name: "DOUBLE"
       dremio:
@@ -99,6 +99,14 @@ data_types:
         name: "INT UNSIGNED"
       dremio:
         name: "integer"
+#    - source:
+#        name: "SIGNED INTEGER"
+#        dremio:
+#          name: "integer"
+#    - source:
+#        name: "UNSIGNED INTEGER"
+#        dremio:
+#          name: "integer"
     - source:
         name: "INTEGER"
       dremio:
@@ -304,7 +312,7 @@ relational_algebra:
     order_by:
       enable: true
       default_nulls_ordering: high
-    fetch_offset: # https://docs.snowflake.net/manuals/sql-reference/constructs/limit.html#limit-fetch
+    fetch_offset:
       offset_fetch:
         enable: true
         format: 'LIMIT {1} OFFSET {0}'
@@ -313,7 +321,6 @@ relational_algebra:
       fetch_only:
         enable: true
         format: 'LIMIT {0}'
-  # https://docs.snowflake.net/manuals/sql-reference/operators-query.html#union-all
   union:
     enable: true
   union_all:
@@ -382,13 +389,17 @@ expressions:
         - "cast"
       signatures:
         - args:
-            - "varchar"
+            - "integer"
           return: "integer"
-          rewrite: "CAST(TRUNC(CAST({0} AS DECIMAL), 0) AS INTEGER)"
+          rewrite: "CAST( {0} as  SIGNED INTEGER)"
         - args:
-            - "varchar"
-          return: "bigint"
-          rewrite: "CAST(TRUNC(CAST({0} AS DECIMAL), 0) AS BIGINT)"
+            - "double"
+          return: "double"
+          rewrite: "CAST( {0} as  double )"
+#        - args:
+#            - "varchar"
+#          return: "bigint"
+#          rewrite: "CAST(TRUNC(CAST({0} AS DECIMAL), 0) AS BIGINT)"
     - names:
         - "trim" #https://docs.snowflake.net/manuals/sql-reference/functions/trim.html
       signatures:
@@ -1863,6 +1874,208 @@ expressions:
     #--- Relational Operators --#
     - names:
         - "="
+      signatures:
+        - args:
+            - "decimal"
+            - "decimal"
+          return: "boolean"
+        - args:
+            - "decimal"
+            - "double"
+          return: "boolean"
+        - args:
+            - "decimal"
+            - "float"
+          return: "boolean"
+        - args:
+            - "decimal"
+            - "bigint"
+          return: "boolean"
+        - args:
+            - "decimal"
+            - "integer"
+          return: "boolean"
+        - args:
+            - "decimal"
+            - "varchar"
+          return: "boolean"
+        - args:
+            - "double"
+            - "double"
+          return: "boolean"
+        - args:
+            - "double"
+            - "decimal"
+          return: "boolean"
+        - args:
+            - "double"
+            - "float"
+          return: "boolean"
+        - args:
+            - "double"
+            - "bigint"
+          return: "boolean"
+        - args:
+            - "double"
+            - "integer"
+          return: "boolean"
+        - args:
+            - "double"
+            - "varchar"
+          return: "boolean"
+        - args:
+            - "float"
+            - "float"
+          return: "boolean"
+        - args:
+            - "float"
+            - "decimal"
+          return: "boolean"
+        - args:
+            - "float"
+            - "double"
+          return: "boolean"
+        - args:
+            - "float"
+            - "bigint"
+          return: "boolean"
+        - args:
+            - "float"
+            - "integer"
+          return: "boolean"
+        - args:
+            - "float"
+            - "varchar"
+          return: "boolean"
+        - args:
+            - "bigint"
+            - "bigint"
+          return: "boolean"
+        - args:
+            - "bigint"
+            - "decimal"
+          return: "boolean"
+        - args:
+            - "bigint"
+            - "double"
+          return: "boolean"
+        - args:
+            - "bigint"
+            - "float"
+          return: "boolean"
+        - args:
+            - "bigint"
+            - "integer"
+          return: "boolean"
+        - args:
+            - "bigint"
+            - "varchar"
+          return: "boolean"
+        - args:
+            - "integer"
+            - "integer"
+          return: "boolean"
+        - args:
+            - "integer"
+            - "decimal"
+          return: "boolean"
+        - args:
+            - "integer"
+            - "double"
+          return: "boolean"
+        - args:
+            - "integer"
+            - "float"
+          return: "boolean"
+        - args:
+            - "integer"
+            - "bigint"
+          return: "boolean"
+        - args:
+            - "integer"
+            - "varchar"
+          return: "boolean"
+        - args:
+            - "varchar"
+            - "varchar"
+          return: "boolean"
+        - args:
+            - "varchar"
+            - "decimal"
+          return: "boolean"
+        - args:
+            - "varchar"
+            - "double"
+          return: "boolean"
+        - args:
+            - "varchar"
+            - "float"
+          return: "boolean"
+        - args:
+            - "varchar"
+            - "bigint"
+          return: "boolean"
+        - args:
+            - "varchar"
+            - "integer"
+          return: "boolean"
+        - args:
+            - "varchar"
+            - "date"
+          return: "boolean"
+        - args:
+            - "varchar"
+            - "time"
+          return: "boolean"
+        - args:
+            - "varchar"
+            - "timestamp"
+          return: "boolean"
+        - args:
+            - "date"
+            - "date"
+          return: "boolean"
+        - args:
+            - "date"
+            - "timestamp"
+          return: "boolean"
+        - args:
+            - "date"
+            - "varchar"
+          return: "boolean"
+        - args:
+            - "timestamp"
+            - "date"
+          return: "boolean"
+        - args:
+            - "timestamp"
+            - "timestamp"
+          return: "boolean"
+        - args:
+            - "timestamp"
+            - "varchar"
+          return: "boolean"
+        - args:
+            - "time"
+            - "time"
+          return: "boolean"
+        - args:
+            - "time"
+            - "timestamp"
+          return: "boolean"
+        - args:
+            - "time"
+            - "varchar"
+          return: "boolean"
+        - args:
+            - "varbinary"
+            - "varbinary"
+          return: "boolean"
+        - args:
+            - "boolean"
+            - "boolean"
+          return: "boolean"
+    - names:
         - "!="
         - "<>"
         - ">"

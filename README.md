@@ -48,3 +48,5 @@ Run:
 ```bash
 docker run -d -p 9047:9047 -p 31010:31010 dremio-tidb:latest
 ```
+## Demo
+![使用 demo](dremio-tidb-configuration-guide.gif)

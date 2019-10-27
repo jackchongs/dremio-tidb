@@ -1,4 +1,4 @@
-package com.dremio.snowflake;
+package com.dremio.tidb;
 
 
 import static org.junit.Assert.assertEquals;
@@ -31,18 +31,18 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class SnowflakeTest {
+public class TidbTest {
 
-  private static Logger log = Logger.getLogger(SnowflakeTest.class);
+  private static Logger log = Logger.getLogger(TidbTest.class);
 
 
-  /* Snowflake connection settings */
+  /* tidb connection settings */
 
   private static String authToken = "_dremio";
 
-  private static final String snowflakeJdbcURL = System.getenv("SNOWFLAKE_JDBC_URL");
-  private static final String snowflakeUser = System.getenv("SNOWFLAKE_USER");
-  private static final String snowflakePassword = System.getenv("SNOWFLAKE_PASSWORD");
+  private static final String tidbJdbcURL = System.getenv("TIDB_JDBC_URL");
+  private static final String tidbUser = System.getenv("TIDB_USER");
+  private static final String tidbPassword = System.getenv("TIDB_PASSWORD");
 
   @BeforeClass
   public static void setup() throws IOException, SQLException {
@@ -51,7 +51,7 @@ public class SnowflakeTest {
     CloseableHttpClient client = HttpClients.createDefault();
     HttpPost httpPost = new HttpPost("http://localhost:9047/apiv2/login");
 
-    String json = "{\"userName\": \"dremio\",\"password\": \"dremio123\"}";
+    String json = "{\"userName\": \"admin\",\"password\": \"dremio\"}";
 
     httpPost.setEntity(new StringEntity(json));
     httpPost.setHeader("Content-type", "application/json");
@@ -63,36 +63,36 @@ public class SnowflakeTest {
             findValue("token").asText();
 
     client.close();
-
+    log.info("authToken: " + authToken);
     // Create test table and insert sample data
 
-    log.info("Snowflake: Create test table");
+    log.info("tidb: Create test table");
     Properties properties = new Properties();
-    properties.put("user", snowflakeUser);
-    properties.put("password", snowflakePassword);
+    properties.put("user", tidbUser);
+    properties.put("password", tidbPassword);
 
-    Statement statement = DriverManager.getConnection(snowflakeJdbcURL, properties)
+    Statement statement = DriverManager.getConnection(tidbJdbcURL, properties)
         .createStatement();
-
+    log.info("statement: " + statement);
     String[] sqls = FileUtils
-        .readFileToString(new File(new File("src/test/resources/DDL.sql").getPath()),
+        .readFileToString(new File(new File("src/test/resources/DDL_tidb.sql").getPath()),
             StandardCharsets.UTF_8).split(";");
-
-    // Snowflake doesn't support executing multiple SQLs in a single call
+ 
+    // tidb doesn't support executing multiple SQLs in a single call
     statement.executeUpdate(sqls[0]);
     statement.executeUpdate(sqls[1]);
 
-    log.info("Dremio: Create Snowflake datasource");
+    log.info("Dremio: Create tidb datasource");
     CloseableHttpClient createSourceClient = HttpClients.createDefault();
-    HttpPut httpPut = new HttpPut("http://localhost:9047/apiv2/source/snowflake");
+    HttpPut httpPut = new HttpPut("http://localhost:9047/apiv2/source/tidb");
 
     String jsonPayload = String.format("{\n"
-        + "    \"name\": \"snowflake\",\n"
+        + "    \"name\": \"tidb\",\n"
         + "    \"config\": {\n"
         + "        \"jdbcURL\": \"%s\",\n"
         + "        \"username\": \"%s\",\n"
         + "        \"password\": \"%s\",\n"
-        + "        \"fetchSize\": 2000\n"
+        + "        \"fetchSize\": 9047\n"
         + "    },\n"
         + "    \"accelerationRefreshPeriod\": 3600000,\n"
         + "    \"accelerationGracePeriod\": 10800000,\n"
@@ -108,8 +108,8 @@ public class SnowflakeTest {
         + "        \"userControls\": [],\n"
         + "        \"groupControls\": []\n"
         + "    },\n"
-        + "    \"type\": \"SNOWFLAKE\"\n"
-        + "}", snowflakeJdbcURL, snowflakeUser, snowflakePassword);
+        + "    \"type\": \"tidb\"\n"
+        + "}", tidbJdbcURL, tidbUser, tidbPassword);
 
     httpPut.setEntity(new StringEntity(jsonPayload));
     httpPut.setHeader("Content-type", "application/json");
@@ -129,71 +129,72 @@ public class SnowflakeTest {
     TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
 
     // Get resultset from Dremio
-    Connection dremioConnection = DriverManager
-        .getConnection("jdbc:dremio:direct=localhost;user=dremio;password=dremio123");
 
+    Connection dremioConnection = DriverManager
+        .getConnection("jdbc:dremio:direct=localhost:9047;user=admin;password=dremio");
+    log.info(dremioConnection);
     Statement dremioStatement = dremioConnection.createStatement();
 
     ResultSet dremioRs = dremioStatement
-        .executeQuery("SELECT * FROM snowflake.\"DEMO_DB\".\"PUBLIC\".all_types");
+        .executeQuery("select * from tidb.tpch.all_types");
     dremioRs.next();
 
-    // Get resultset from Snowflake
+    // Get resultset from tidb
     Properties properties = new Properties();
-    properties.put("user", snowflakeUser);
-    properties.put("password", snowflakePassword);
-    Connection snowflakeConnection = DriverManager
-        .getConnection(snowflakeJdbcURL, properties);
+    properties.put("user", tidbUser);
+    properties.put("password", tidbPassword);
+    Connection tidbConnection = DriverManager
+        .getConnection(tidbJdbcURL, properties);
 
-    Statement snowflakeStatement = snowflakeConnection.createStatement();
+    Statement tidbStatement = tidbConnection.createStatement();
 
-    ResultSet snowflakeRs = snowflakeStatement
-        .executeQuery("SELECT * FROM \"DEMO_DB\".\"PUBLIC\".\"all_types\"");
-    snowflakeRs.next();
+    ResultSet tidbRs = tidbStatement
+        .executeQuery("SELECT * FROM tpch.all_types");
+    tidbRs.next();
 
 
     // Compare
 
-    assertEquals(dremioRs.getBigDecimal("A"), snowflakeRs.getBigDecimal("A"));
-    assertEquals(dremioRs.getInt("B"), snowflakeRs.getInt("B"));
-    assertEquals(dremioRs.getInt("C"), snowflakeRs.getInt("C"));
-    assertEquals(dremioRs.getInt("D"), snowflakeRs.getInt("D"));
-    assertEquals(dremioRs.getInt("E"), snowflakeRs.getInt("E"));
-    assertEquals(dremioRs.getInt("F"), snowflakeRs.getInt("F"));
+    assertEquals(dremioRs.getBigDecimal("A"), tidbRs.getBigDecimal("A"));
+    assertEquals(dremioRs.getInt("B"), tidbRs.getInt("B"));
+    assertEquals(dremioRs.getInt("C"), tidbRs.getInt("C"));
+    assertEquals(dremioRs.getInt("D"), tidbRs.getInt("D"));
+    assertEquals(dremioRs.getInt("E"), tidbRs.getInt("E"));
+    assertEquals(dremioRs.getInt("F"), tidbRs.getInt("F"));
 
-    assertEquals(dremioRs.getDouble("G"), snowflakeRs.getDouble("G"),0.1);
-    assertEquals(dremioRs.getDouble("H"), snowflakeRs.getDouble("H"),0.1);
-    assertEquals(dremioRs.getDouble("I"), snowflakeRs.getDouble("I"),0.1);
-    assertEquals(dremioRs.getDouble("J"), snowflakeRs.getDouble("J"),0.1);
-    assertEquals(dremioRs.getDouble("K"), snowflakeRs.getDouble("K"),0.1);
-    assertEquals(dremioRs.getDouble("L"), snowflakeRs.getDouble("L"),0.1);
+    assertEquals(dremioRs.getDouble("G"), tidbRs.getDouble("G"),0.1);
+    assertEquals(dremioRs.getDouble("H"), tidbRs.getDouble("H"),0.1);
+    assertEquals(dremioRs.getDouble("I"), tidbRs.getDouble("I"),0.1);
+    assertEquals(dremioRs.getDouble("J"), tidbRs.getDouble("J"),0.1);
+    assertEquals(dremioRs.getDouble("K"), tidbRs.getDouble("K"),0.1);
+    assertEquals(dremioRs.getDouble("L"), tidbRs.getDouble("L"),0.1);
 
-    assertEquals(dremioRs.getString("M"), snowflakeRs.getString("M"));
-    assertEquals(dremioRs.getString("N"), snowflakeRs.getString("N"));
-    assertEquals(dremioRs.getString("O"), snowflakeRs.getString("O"));
-    assertEquals(dremioRs.getString("P"), snowflakeRs.getString("P"));
+    assertEquals(dremioRs.getString("M"), tidbRs.getString("M"));
+    assertEquals(dremioRs.getString("N"), tidbRs.getString("N"));
+    assertEquals(dremioRs.getString("O"), tidbRs.getString("O"));
+    assertEquals(dremioRs.getString("P"), tidbRs.getString("P"));
 
-    assertEquals(new String(dremioRs.getBytes("Q")), new String(snowflakeRs.getBytes("Q")));
-    assertEquals(new String(dremioRs.getBytes("R")), new String(snowflakeRs.getBytes("R")));
+    assertEquals(new String(dremioRs.getBytes("Q")), new String(tidbRs.getBytes("Q")));
+    assertEquals(new String(dremioRs.getBytes("R")), new String(tidbRs.getBytes("R")));
 
-    assertEquals(dremioRs.getTimestamp("S"), snowflakeRs.getTimestamp("S"));
-    assertEquals(dremioRs.getTime("T"), snowflakeRs.getTime("T"));
-    assertEquals(dremioRs.getTimestamp("U"), snowflakeRs.getTimestamp("U"));
+    assertEquals(dremioRs.getTimestamp("S"), tidbRs.getTimestamp("S"));
+    assertEquals(dremioRs.getTime("T"), tidbRs.getTime("T"));
+    assertEquals(dremioRs.getTimestamp("U"), tidbRs.getTimestamp("U"));
 
 
     dremioStatement.close();
-    snowflakeStatement.close();
+    tidbStatement.close();
 
   }
 
   @AfterClass
   public static void cleanUp() throws IOException, SQLException, InterruptedException {
 
-    log.info("Dremio: Removing Snowflake data source in 5 seconds");
+    log.info("Dremio: Removing tidb data source in 5 seconds");
 
     CloseableHttpClient client = HttpClients.createDefault();
     HttpDelete httpDelete = new HttpDelete(
-        "http://localhost:9047/apiv2/source/snowflake?version=1");
+        "http://localhost:9047/apiv2/source/tidb?version=1");
 
     httpDelete.setHeader("Content-type", "application/json");
     httpDelete.setHeader("Authorization", authToken);
@@ -202,13 +203,13 @@ public class SnowflakeTest {
 
     client.close();
 
-    log.info("Snowflake: Remove test table");
+    log.info("tidb: Remove test table");
     Properties properties = new Properties();
-    properties.put("user", snowflakeUser);
-    properties.put("password", snowflakePassword);
+    properties.put("user", tidbUser);
+    properties.put("password", tidbPassword);
 
-    Statement statement = DriverManager.getConnection(snowflakeJdbcURL, properties)
+    Statement statement = DriverManager.getConnection(tidbJdbcURL, properties)
         .createStatement();
-    statement.executeUpdate("DROP TABLE \"DEMO_DB\".\"PUBLIC\".\"all_types\"");
+    statement.executeUpdate("DROP TABLE \"tidb\".\"tpch\".\"all_types\"");
   }
 }

@@ -338,7 +338,7 @@ expressions:
     in_clause: true
   supports_case: true
   supports_over: true
-  datetime_formats: #https://docs.snowflake.net/manuals/sql-reference/data-types-datetime.html#date-and-time-formats
+  datetime_formats:
     meridian:
       enable: true
       format: "AM"
@@ -401,24 +401,24 @@ expressions:
 #          return: "bigint"
 #          rewrite: "CAST(TRUNC(CAST({0} AS DECIMAL), 0) AS BIGINT)"
     - names:
-        - "trim" #https://docs.snowflake.net/manuals/sql-reference/functions/trim.html
+        - "trim"
       signatures:
         - args:
             - "varchar"
           return: "varchar"
-    - names: #https://docs.snowflake.net/manuals/sql-reference/functions/ltrim.html
+    - names:
         - "ltrim"
       signatures:
         - args:
             - "varchar"
           return: "varchar"
-    - names: #https://docs.snowflake.net/manuals/sql-reference/functions/rtrim.html
+    - names:
         - "rtrim"
       signatures:
         - args:
             - "varchar"
           return: "varchar"
-    - names: #https://docs.snowflake.net/manuals/sql-reference/functions/sign.html
+    - names:
         - "sign"
       signatures:
         - args:
@@ -437,7 +437,7 @@ expressions:
             - "integer"
           return: "integer"
     - names:
-        - "floor" #https://docs.snowflake.net/manuals/sql-reference/functions/floor.html.
+        - "floor"
       signatures:
         - args:
             - "bigint"
@@ -533,7 +533,7 @@ expressions:
             - "bigint"
             - "varchar"
           return: "varchar"
-    - names: #https://docs.snowflake.net/manuals/sql-reference/functions/substr.html
+    - names:
         - "substring"
       signatures:
         - args:
@@ -1211,7 +1211,6 @@ expressions:
             - "decimal"
           return: "decimal"
 
-    #https://docs.snowflake.net/manuals/sql-reference/operators.html
     #--- Arithmetic Operators --#
     - names:
         - "+"

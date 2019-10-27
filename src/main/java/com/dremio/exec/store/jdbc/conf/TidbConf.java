@@ -49,7 +49,7 @@ public class TidbConf extends AbstractArpConf<TidbConf> {
 
   /*
     TODO: check following
-    The following block is required as Snowflake reports integers as NUMBER(38,0).
+    The following block is required as Tidb reports integers as NUMBER(38,0).
    */
   static class TidbSchemaFetcher extends JdbcSchemaFetcher {
 

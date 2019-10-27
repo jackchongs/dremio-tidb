@@ -38,28 +38,15 @@ Dremio是一个分布式的分析引擎，可一站式满足实时和海量数�
 4. 重新启动Dremio。
 
 **构建docker镜像详细步骤**
-```Dockerfile
-FROM dremio/dremio-oss:4.0.0
-USER root
-RUN wget http://apache.osuosl.org/maven/maven-3/3.6.1/binaries/apache-maven-3.6.1-bin.zip && \
-   unzip apache-maven-3.6.1-bin.zip && \
-   git clone https://github.com/jackchongs/dremio-tidb.git && cd dremio-tidb && \
-   export PATH=$PATH:/tmp/apache-maven-3.6.1/bin && \
-   mvn clean install -DskipTests && \
-   cp target/dremio-tidb*.jar /opt/dremio/jars && \
-   cd /opt/dremio/jars && wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.48/mysql-connector-java-5.1.48.jar && \
-   chown dremio *mysql-connector-java*.jar && rm -rf ~/.m2 && rm -rf /tmp/*
-WORKDIR /opt/dremio
-USER dremio
-```
 
 Build:
 ```bash
-docker build -f docker/Dockerfile -t dremio-tidb
+# 先执行构建与安装第一步， 再执行后面代码
+docker build -f docker/Dockerfile -t dremio-tidb:latest
 ```
 Run:
 ```bash
-docker run -p 9047:9047 -p 31010:31010 dremio-tidb
+docker run -d -p 9047:9047 -p 31010:31010 dremio-tidb:latest
 ```
 
 ## 测试
